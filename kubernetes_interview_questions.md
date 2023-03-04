@@ -85,18 +85,13 @@
     Answer: Ingress Controller FULFILLS ingress requirements
             Defining and ingress has no actual impact on traffic.
             Traffic is only acted upon once you have created an Ingress Controller (e.g. Load Balancer or Nginx Ingress Controller)
+```	    
+	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
 	    
-	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application
-	    layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
+	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller watches for changes in the Ingress resource and reconfigures the load balancer as needed.
 	    
-	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is
-	    responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller
-	    watches for changes in the Ingress resource and reconfigures the load balancer as needed.
-	    
-	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress
-	    Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer
-	    accordingly.
-
+	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer accordingly.
+```
 
 ## .
 
@@ -117,6 +112,11 @@
     Answer: AWS, GCE, and nginx ingress controllers.
             (This is straight from Kubernetes documentation)
 
+```
+Nginx Ingress Controller - This controller uses the Nginx web server to route traffic to different services in the cluster.
+Traefik Ingress Controller - This controller is a modern HTTP reverse proxy and load balancer that can route traffic based on the requested host, path, or other rules.
+Istio Ingress Gateway - This controller is a part of the Istio service mesh and provides advanced traffic management features such as traffic routing, load balancing, TLS termination, and security.
+```
 ## .
 
 
@@ -141,7 +141,7 @@
 ## .
 
 
-## .,...
+## .....
 
 #### 9. How would one start up a Kubernetes cluster to deploy containers/pods on (in GCP)?
 
@@ -155,14 +155,29 @@
 
 ## .
 
+#### 9.1 How would one start up a Kubernetes cluster to deploy containers/pods on aws?
 
+     Answer: 
+       a. Amazon Elastic Kubernetes Service (Amazon EKS)
+       b. Kubernetes on EC2
+       c. Managed Kubernetes services from other cloud providers: GKE and AKS
+
+       
+
+## .
 
 ## ......
 
 #### 10.   If a container keeps crashing, how do you troubleshoot?
-
+```
     Answer: You can use --previous option with logs command to see the logs of a crashed container.
-
+    1. Check the container logs : kubectl logs
+    2. Check the container image : 
+    3. Check the resource utilization : it has sufficient CPU, memory, or storage resources allocated, use kubectl describe
+    4. Check the container environment variables
+    5. Check the Kubernetes configuration
+    6. Check the cluster health: Check if the cluster has sufficient resources, if there are any issues with the network or DNS resolution
+```
 ## .
 
 
@@ -173,6 +188,19 @@
     Answer: if they use too much memory, they are evicted.
             if they use too much cpu, they are throttled.
 
+```
+If containers use too much CPU or memory, it can cause performance issues or even lead to container failure. The following are the possible scenarios that can happen if containers use too much CPU or memory:
+
+Performance degradation: If a container uses more CPU or memory than the resources allocated to it, it can cause performance degradation of the container itself and other containers running on the same node. This can lead to slower response times and reduced throughput of the application.
+
+Out of memory (OOM) errors: If a container uses more memory than the limit set for it, the Linux kernel can terminate the container with an OOM error. This happens because the kernel runs out of memory to allocate to the container, and it cannot free up memory from other processes.
+
+CPU throttling: If a container uses more CPU than the limit set for it, the Kubernetes control plane can throttle the CPU usage of the container. This can lead to slower response times and reduced throughput of the application.
+
+Container termination: If a container continues to use too much CPU or memory for an extended period, the Kubernetes control plane can terminate the container. This happens to ensure the stability and availability of the Kubernetes cluster.
+
+To avoid these scenarios, it is essential to monitor the resource utilization of containers and allocate sufficient resources based on the application requirements. You can also use tools like Kubernetes Horizontal Pod Autoscaler to automatically scale the resources of the containers based on the demand.
+```
 ## .
 
 
