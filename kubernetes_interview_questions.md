@@ -85,6 +85,11 @@
     Answer: Ingress Controller FULFILLS ingress requirements
             Defining and ingress has no actual impact on traffic.
             Traffic is only acted upon once you have created an Ingress Controller (e.g. Load Balancer or Nginx Ingress Controller)
+	    
+	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
+	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller watches for changes in the Ingress resource and reconfigures the load balancer as needed.
+	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer accordingly.
+
 
 ## .
 
@@ -1671,7 +1676,7 @@
        CrashLoopBackOff
        : container comes up and crashes/exists
 	       Container has nothing to do, so it shuts down
-	       Initial value of readiness probe is too small compared to what is needed by container¿s tasks
+	       Initial value of readiness probe is too small compared to what is needed by containerÂ¿s tasks
 
        RunContainerError
        : container could not be kicked off
@@ -1788,7 +1793,7 @@
 
 #### 164. What is the difference between a daemonset and a deployment?
 
-     Answer: Sometimes there is a need to have some pods on EVERY node (e.g. DNS server or a log collector). One can deploy these ¿sets¿ as a daemon set on each node.
+     Answer: Sometimes there is a need to have some pods on EVERY node (e.g. DNS server or a log collector). One can deploy these Â¿setsÂ¿ as a daemon set on each node.
              Deployment is a declarative definition of replicasets/pods. You define what needs to go on (how many, what type etc) and the deployment controller ensures that the "desired state" is always there.
 
 ## .
@@ -2917,7 +2922,7 @@
 
 #### 275. How to rotate your cluster credentials using gcloud CLI?
 
-     Answer:  gcloud containers cluster foo update ¿start-credentials-rotation
+     Answer:  gcloud containers cluster foo update Â¿start-credentials-rotation
 
 ## .
 
@@ -2975,7 +2980,7 @@
 
 ## ......
 
-#### 281. kublet receives it¿s work in the form of _______  ?
+#### 281. kublet receives itÂ¿s work in the form of _______  ?
 
      Answer: YAML
 
