@@ -86,9 +86,16 @@
             Defining and ingress has no actual impact on traffic.
             Traffic is only acted upon once you have created an Ingress Controller (e.g. Load Balancer or Nginx Ingress Controller)
 	    
-	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
-	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller watches for changes in the Ingress resource and reconfigures the load balancer as needed.
-	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer accordingly.
+	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application
+	    layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
+	    
+	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is
+	    responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller
+	    watches for changes in the Ingress resource and reconfigures the load balancer as needed.
+	    
+	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress
+	    Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer
+	    accordingly.
 
 
 ## .
