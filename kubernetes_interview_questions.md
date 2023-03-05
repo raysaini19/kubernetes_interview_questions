@@ -85,6 +85,13 @@
     Answer: Ingress Controller FULFILLS ingress requirements
             Defining and ingress has no actual impact on traffic.
             Traffic is only acted upon once you have created an Ingress Controller (e.g. Load Balancer or Nginx Ingress Controller)
+```	    
+	    Ingress is a Kubernetes resource that defines rules for external access to services within a cluster. It acts as a layer 7 (application layer) load balancer that routes traffic to the appropriate service based on the requested host and path.
+	    
+	    An Ingress Controller, on the other hand, is a component that runs in a Kubernetes cluster and manages the Ingress resource. It is responsible for implementing the rules defined in the Ingress resource and configuring the load balancer accordingly. The Ingress Controller watches for changes in the Ingress resource and reconfigures the load balancer as needed.
+	    
+	    In summary, Ingress is a Kubernetes resource that defines how external traffic should be routed to services within a cluster, while Ingress Controller is a component that actually implements the routing rules defined in the Ingress resource and configures the load balancer accordingly.
+```
 
 ## .
 
@@ -104,6 +111,12 @@
 
     Answer: AWS, GCE, and nginx ingress controllers.
             (This is straight from Kubernetes documentation)
+            
+            Nginx Ingress Controller - This controller uses the Nginx web server to route traffic to different services in the cluster.
+            
+            Traefik Ingress Controller - This controller is a modern HTTP reverse proxy and load balancer that can route traffic based on the requested host, path, or other rules.
+            
+            Istio Ingress Gateway - This controller is a part of the Istio service mesh and provides advanced traffic management features such as traffic routing, load balancing, TLS termination, and security.
 
 ## .
 
@@ -129,7 +142,7 @@
 ## .
 
 
-## .,...
+## .....
 
 #### 9. How would one start up a Kubernetes cluster to deploy containers/pods on (in GCP)?
 
@@ -143,14 +156,33 @@
 
 ## .
 
+#### 9.1 How would one start up a Kubernetes cluster to deploy containers/pods on aws?
 
+     Answer: 
+       a. Amazon Elastic Kubernetes Service (Amazon EKS)
+       b. Kubernetes on EC2
+       c. Managed Kubernetes services from other cloud providers: GKE and AKS
+
+       
+
+## .
 
 ## ......
 
 #### 10.   If a container keeps crashing, how do you troubleshoot?
-
+```
     Answer: You can use --previous option with logs command to see the logs of a crashed container.
+
       (kubectl logs --previous)
+
+=======
+    1. Check the container logs : kubectl logs
+    2. Check the container image : 
+    3. Check the resource utilization : it has sufficient CPU, memory, or storage resources allocated, use kubectl describe
+    4. Check the container environment variables
+    5. Check the Kubernetes configuration
+    6. Check the cluster health: Check if the cluster has sufficient resources, if there are any issues with the network or DNS resolution
+```
 
 ## .
 
@@ -161,6 +193,19 @@
 
     Answer: if they use too much memory, they are evicted.
             if they use too much cpu, they are throttled.
+            
+            If containers use too much CPU or memory, it can cause performance issues or even lead to container failure. The following are the possible scenarios that can happen if containers use too much CPU or memory:
+            
+            
+            Performance degradation: If a container uses more CPU or memory than the resources allocated to it, it can cause performance degradation of the container itself and other containers running on the same node. This can lead to slower response times and reduced throughput of the application.
+            
+            Out of memory (OOM) errors: If a container uses more memory than the limit set for it, the Linux kernel can terminate the container with an OOM error. This happens because the kernel runs out of memory to allocate to the container, and it cannot free up memory from other processes.
+            
+            CPU throttling: If a container uses more CPU than the limit set for it, the Kubernetes control plane can throttle the CPU usage of the container. This can lead to slower response times and reduced throughput of the application.
+            
+            Container termination: If a container continues to use too much CPU or memory for an extended period, the Kubernetes control plane can terminate the container. This happens to ensure the stability and availability of the Kubernetes cluster.
+            
+            To avoid these scenarios, it is essential to monitor the resource utilization of containers and allocate sufficient resources based on the application requirements. You can also use tools like Kubernetes Horizontal Pod Autoscaler to automatically scale the resources of the containers based on the demand.
 
 ## .
 
@@ -173,10 +218,16 @@
       This artcile answers it very well:
       https://www.replex.io/blog/kubernetes-in-production-best-practices-for-cluster-autoscaler-hpa-and-vpa
 
-      a. hpa for pods (horizontal pod autoscaler)
-      b. vpa for pods (vertical pod autoscaler)
+      a. hpa for pods (horizontal pod autoscaler):
+           HPA automatically scales the number of replicas of a pod based on the CPU utilization or custom metrics
+      b. vpa for pods (vertical pod autoscaler):
+           scales the CPU and memory resources of a pod based on the usage patterns
       c. Cluster Autoscaler:
            The cluster autoscaler is a Kubernetes tool that increases or decreases the size of a Kubernetes cluster (by adding or removing nodes), based on the presence of pending pods and node utilization metrics
+      d. StatefulSet Autoscaler:
+           The StatefulSet Autoscaler automatically scales the number of replicas of a StatefulSet based on the demand. It can be used to ensure that the application has the required resources to handle the load and can scale up or down based on the demand.
+      e. Job Autoscaler:
+           The Job Autoscaler automatically scales the number of replicas of a Job based on the workload. It can be used to ensure that the application has the required resources to handle the workload and can scale up or down based on the demand.
 
 ## .
 
@@ -188,7 +239,18 @@
 
     Answer: Answer will depend on your use case. One possible answer is to have Service accounts that do certain things within the cluster.
             By the way, RBAC in Kubernetes is just AWS IAM Policies and Bindings. In RBAC, you have subjects (who gets the permission), verbs (what can the subject actually do), and rolebinding (subject linking to roles) and roles.
-
+            
+            
+            RBAC is a security mechanism in Kubernetes that controls access to Kubernetes resources based on roles and permissions. RBAC allows you to define roles and permissions for users, groups, and service accounts. Here's an example of how RBAC can be used with Kubernetes:
+            
+            
+            Define roles and permissions: You can define roles and permissions for different types of users, groups, and service accounts. For example, you can define a "developer" role that has permissions to create and modify deployments, pods, and services.
+            
+            Create role bindings: Role bindings are used to associate roles with users, groups, and service accounts. For example, you can create a role binding that associates the "developer" role with a particular user or group.
+            
+            Verify access: Once the roles and role bindings are created, you can verify access to Kubernetes resources using kubectl. For example, you can use kubectl to verify that a user with the "developer" role can create and modify deployments, pods, and services.
+            
+            By using RBAC with Kubernetes, you can ensure that only authorized users have access to Kubernetes resources and that they have the appropriate level of access based on their role and permissions. This helps in improving the security of Kubernetes clusters and applications running on them.
 
 ## .
 
@@ -198,6 +260,22 @@
 #### 14. If you have 200 micro-services in your clusters, how do you manage security of each one? How do you avoid toil?
 
     Answer: RBAC is the answer. You define roles. And you place subjects in those roles. Each role then will have access to X Y Z etc. This is really no different than AWS or AD.
+    
+    Managing the security of 200 microservices in a Kubernetes cluster can be a challenging task. Here are some best practices to manage the security of each microservice and avoid toil:
+    
+    Use RBAC: As mentioned in the previous answer, RBAC can be used to control access to Kubernetes resources. By defining roles and permissions for each microservice, you can ensure that only authorized users have access to the microservice and its resources.
+    
+    Use Kubernetes Network Policies: Network policies can be used to control the traffic flow between microservices. By defining network policies, you can ensure that only authorized microservices have access to each other.
+    
+    Use Kubernetes Secrets: Secrets can be used to store sensitive information such as passwords, API keys, and certificates. By using Kubernetes secrets, you can ensure that sensitive information is stored securely and only authorized microservices have access to it.
+    
+    Use Container Images from Trusted Sources: Ensure that container images used for microservices are obtained from trusted sources and are scanned for vulnerabilities before deploying them to the cluster.
+    
+    Use Automation: Use automation tools such as Kubernetes Operators and GitOps to manage the deployment and configuration of microservices. By automating the deployment and configuration process, you can avoid manual errors and ensure consistency across the cluster.
+    
+    Use Logging and Monitoring: Use logging and monitoring tools to track the activity of each microservice and identify any security issues or anomalies. This can help in detecting security threats early and taking appropriate action to mitigate them.
+    
+    By following these best practices, you can manage the security of each microservice in a Kubernetes cluster and avoid toil. Additionally, it's important to regularly review and update the security measures as the microservices and the cluster evolve over time.
 
 ## .
 
@@ -212,6 +290,32 @@
 
       There are N micro-services. One of them gets a new version. But, the HPA for those pods are set wrong. Container keep crashing. This causes cascading failures for many other micro-services. 
       Solution: Fix the HPA settings and add circuit-breakers in the consuming micro-services.
+
+To solve this issue, you can take the following steps:
+
+Check the network configuration: Verify that the network configuration is correct and all the network components such as load balancers, routers, switches, and firewalls are properly configured.
+
+Check the Kubernetes components: Check the status of Kubernetes components such as kube-apiserver, kube-controller-manager, kube-scheduler, and kubelet. Verify that all components are running and healthy.
+
+Check the nodes: Check the status of nodes in the cluster. Verify that all nodes are running and healthy.
+
+Check the pods: Check the status of pods running on the nodes. Verify that all pods are running and healthy.
+
+Check the network policies: Verify that the network policies are properly configured to allow traffic flow between the components and services.
+
+Check the container logs: Check the container logs to identify any network-related issues or errors.
+
+Use troubleshooting tools: Use Kubernetes troubleshooting tools such as kubectl, kube-proxy, and kube-dns to diagnose and resolve the issue.
+
+Implement network redundancy: Implement network redundancy by using multiple load balancers, routers, switches, and firewalls to ensure high availability of the Kubernetes cluster.
+
+By taking these steps, you can solve a network outage or network partition issue in a production Kubernetes cluster. However, it's important to regularly review and update the network configuration and components to prevent such issues from occurring in the first place.
+
+
+
+
+
+
 
 ## .
 
@@ -233,6 +337,19 @@
 #### 17. How can you have SSL certificates in Kubernetes?
 
     Answer: SSL cert can be a secret. Then that secret can be mounted on a pod and that pod can whatever it wants with it (e.g. host a SSL web site)
+
+
+To use SSL certificates in Kubernetes, you can follow these steps:
+
+Create a Kubernetes secret: First, you need to create a Kubernetes secret to store the SSL certificate and key. You can use the kubectl create secret tls command to create the secret.
+
+Mount the secret in the POD: Once you have created the secret, you can mount it in the POD by adding a volumeMounts section to the container's specification in the YAML file. This section should specify the name of the volume and the mountPath where the SSL certificate and key should be mounted.
+
+Specify the TLS configuration in the YAML file: Next, you need to specify the TLS configuration in the YAML file. This involves setting the tls section in the spec section of the YAML file, which should include the secretName of the Kubernetes secret and the hosts for which the SSL certificate should be used.
+
+Verify the SSL connection: Finally, you can verify that the SSL connection is working by testing the URL using the https protocol.
+
+By following these steps, you can use SSL certificates in Kubernetes to secure communication between the PODs and external clients. It's important to note that the SSL certificate must be issued by a trusted Certificate Authority (CA) and must be valid for the specific domain or subdomain that is being used.
 
 ## .
 
@@ -327,6 +444,7 @@
        Put that image in a registry
        Create a deploymentment file with type: deployment and component: scheduler (in namespace kube-system)
        Deploy the the scheduler with apply -f scheduler.yaml command
+       location: /etc/kubernetes/config.yaml
 
 ## .
 
@@ -340,6 +458,11 @@
        1. Pod that collects logs. Better to use daemonsets for this because you can logs to be fed from all pods (e.g. to kibana). Otherwise you have to make this part of EVERY deployment which would be annoying and repetitive.
        2. Pod that runs monitoring (e.g. dynatrace or datadog). Reason is the same as above.
 
+       Monitoring Agents: DaemonSets can be used to deploy monitoring agents on all nodes in a Kubernetes cluster. Since monitoring agents are typically required to be running on all nodes in a cluster to collect data on system performance, it makes sense to use a DaemonSet to ensure that the agent runs on every node. Deployments are more appropriate for stateless applications where the desired number of replicas can be specified, but it is difficult to ensure that the same number of replicas are running on every node in the cluster.
+
+
+       Log Collectors: DaemonSets can be used to collect logs from all containers running on a node in a Kubernetes cluster. Since logs need to be collected from all containers running on a node, it makes sense to use a DaemonSet to ensure that a logging agent runs on every node in the cluster. Deployments are more appropriate for stateless applications where the desired number of replicas can be specified, but it is difficult to ensure that the same number of replicas are running on every node in the cluster.
+
 ## .
 
 
@@ -349,7 +472,7 @@
 #### 27. How to move workload to new nodepool? 
 
     Answer: cordon and drain
-        1. cordon means: dont add any more pods to this nodepool
+        1. cordon means: dont add any more pods to this nodepool : tainit
         2. drain means: move current pods out of it
 
 ## .  
@@ -422,7 +545,7 @@
 
 #### 35. One liner command to  run a pod with a label  
 
-    Answer: kubectl run foobar --image=redis:alpine -l label1:foo 
+    Answer: kubectl run nginx-pod --image=nginx --labels=app=web
 
 ## .
 
@@ -467,6 +590,8 @@
     Answer:
        port : on the cluster
        targetport: on the container (just like ALB)
+       the 'port' is the external-facing port that clients will use to access the service, while the 'targetPort' is the internal port that the pods are listening on.
+       kubectl expose deployment my-app --port=80 --target-port=8080
 
 ## .
 
@@ -539,7 +664,7 @@
 
 #### 47. Are environment variables encrypted in Kubernetes? 
 
-    Answer: No
+    Answer: No, They are stored in plain text format in Kubernetes resources such as ConfigMaps, Secrets, and Pod specification.
  
 ## .
 
@@ -550,7 +675,8 @@
 
 #### 48. By default, can a pod in one namespace talk to another pod in another namespace? 
 
-    Answer: Yes.
+    Answer: No, a pod in one namespace cannot talk to another pod in another namespace, unless network policies or other network-level configurations are put in place to allow such communication.
+    This is because Kubernetes provides network isolation between namespaces by default
 
 ## .
 
@@ -582,6 +708,7 @@
 #### 51. By default, where does yaml files for static POD files go:  
 
     Answer: /etc/kubernetes/manifests/  (on the node)
+    By default, the YAML files for static Pod files go to the directory specified in the kubelet's --pod-manifest-path flag, which is /etc/kubernetes/manifests on most Kubernetes installations.
 
 ## .
 
@@ -593,6 +720,10 @@
 #### 52. What is a static pod?
 
     Answer: This is from official documentation.  Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them.
+    A static pod is a pod that is defined as a file on a node's filesystem, rather than in the Kubernetes API server
+    Static pods are managed directly by the kubelet on the node where they run, rather than by the Kubernetes API server
+    they cannot be updated or modified via the API server like regular pods
+    Static pods are typically used for system-level components that need to run on a specific node, such as network proxies or monitoring agents.
 
 ## .
 
@@ -689,7 +820,7 @@
 
 #### 61. jsonpath example of getting "everything"  (about nodes)  .  This is not really an interview question. But, its goog to know this in case JSON PATH topic comes up.
 
-    Answer: kubetcl get nodes -o jsonpath='{.items[*]}'   # everything, so tons of data
+    Answer: kubectl get nodes -o jsonpath='{.items[*]}'   # everything, so tons of data
             * Thing to remember is syntax starts out like awk (single quote and swiggly bracket and then follows dots for JSON levels and [] for lists.
 
 ## .
@@ -730,6 +861,13 @@
 #### 65. What is the different between PV and PVC?
 
     Answer: PV is basically a disk volume of some sort.  PVC is a link between that volume and a pod.
+    PVs are the storage resources that are provisioned by administrators and PVCs are the requests made by pods to access the storage resources provided by PVs.
+
+    PV stands for Persistent Volume, which is a storage resource in Kubernetes that is provisioned by an administrator. It is a cluster-wide resource that can be accessed by multiple pods in the same or different namespaces.
+    PVs are statically provisioned, meaning they are created before they are bound to any pod, and are not tied to the lifecycle of any single pod.
+
+    PVC stands for Persistent Volume Claim, which is a request for storage made by a pod or a group of pods in a specific namespace. 
+    PVCs are used by pods to request specific storage resources without having to know the details of how the storage is provisioned or configured.
 
 ## .
 
@@ -762,6 +900,13 @@
              On the master node, the file that has these configs is at : /etc/kubernetes/manifests/etcd.yaml
              That file in turn , points to the 2 cert files and 1 key file.
 
+             
+
+             the Master server communicates with the etcd cluster using the etcd API.
+             The Kubernetes API server, which is part of the Master server, communicates with etcd to read and write data about the state of the cluster.
+
+             When the Kubernetes master communicates with etcd, it uses client certificates for authentication and transport layer security (TLS) to encrypt the traffic.
+
 ## .
 
 
@@ -774,6 +919,9 @@
        member list
        snapshot save /tmp/etcd-backup.db
        snapshot status /tmp/etcd-backup.db -w table
+
+       etcdctl --endpoints=<etcd-endpoints> --cert-file=<path-to-cert> --key-file=<path-to-key> set /registry/namespaces/<namespace-name> '{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"<namespace-name>","creationTimestamp":null},"spec":{},"status":{}}'
+
 
 ## .
 
@@ -809,7 +957,13 @@
 
 #### 72. Kubectl command to create deployment with busybox version 1.13  
      
+
      Answer: kubectl create deployment foo-deploy --image=busybox:1:13 --replica=1 --record  # create deployment w busybox 1.13
+
+     Answer: kubectl create deployment busybox --image=busybox:1:13 --replica=1
+
+     kubectl run foo-deploy --image=busybox:1:13 --replica=1 --record  # create deployment w busybox 1.13
+
 
 ## .
 
@@ -846,7 +1000,12 @@
 
 #### 76. Why do you need certificates in Kubernetes, anyway?
 
-     Answer: For one thing, the API server won't talk to you , if you don't have a signed client certificate. So, any client who wants to do ANYTHING with the API server (e.g. even kubectl) better have a signed certificate!
+     Answer:   certificates help to ensure the security and integrity of the Kubernetes cluster and the data it contains.
+     To provide secure communication between different components in the cluster.
+     They ensure that only authorized entities can access sensitive information or perform certain actions within the cluster.
+     Certificates are used for authentication and authorization of users and applications that interact with the Kubernetes API server.
+     
+     For one thing, the API server won't talk to you , if you don't have a signed client certificate. So, any client who wants to do ANYTHING with the API server (e.g. even kubectl) better have a signed certificate!
 
      Please read:  https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/
 
@@ -858,6 +1017,12 @@
 #### 77. Why are .csr files have CSR extension? What is CSR all about?
 
      Answer: CSR = Certificate Signing Request.  
+          When a user or an administrator needs a new certificate for a Kubernetes component or application, they generate a private key and a corresponding CSR file.
+          The CSR file contains information about the public key and other identifying information about the entity requesting the certificate.
+
+          The .csr file extension is used to indicate that the file contains a certificate signing request.
+
+
              For example A needs B to give A a signed certificate SO THAT A can later talk to B using that certificate. 
              A will send a CSR (Certificate Signing Request) to B. The file that A sends to be will be CSR and thus will have .csr extension.
 
@@ -911,6 +1076,13 @@
        f. Kubernetes Certificates
        g. RBAC entities
 
+       1.Network security
+       2.Cluster access control
+       3.Secure communication
+       4.Image security
+       5.Resource isolation
+       6.Audit logging
+
 ## .
 
 
@@ -946,6 +1118,29 @@
        c. create a yaml file (Kind: CertificateSigningRequest) using the encoded CSR
        d. kubectl apply -f CertificateSigningRequest.yaml
 
+       openssl genrsa -out <key-file-name>.key 2048
+       openssl req -new -key <key-file-name>.key -out <csr-file-name>.csr -subj "/CN=<common-name>"
+
+       '''
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: <csr-name>
+spec:
+  request: <csr-in-base64>
+  signerName: <ca-name>
+  usages:
+  - digital signature
+  - key encipherment
+  - client auth
+  - server auth
+
+       '''
+
+       kubectl apply -f csr.yaml
+
+       kubectl certificate approve <csr-name>
+
 ## .
 
 
@@ -975,8 +1170,8 @@
 
      Answer:  kubetcl create role
 
-       A detailed example: kubectl create role foo --resource=pods --verb=create,list,get,update,delete --namespace=development
-                           role.rbac.authorization.k8s.io/foo created
+       example: kubectl create role foo --resource=pods --verb=create,list,get,update,delete --namespace=development
+                Output: role.rbac.authorization.k8s.io/foo created
 
 ## .
 
@@ -1065,6 +1260,12 @@
 
   Answer: You have to give the pod the same toleration
 
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "production"
+    effect: "NoSchedule"
+
 ## .
 
 
@@ -1072,7 +1273,25 @@
 
 #### 97. If you want a pod to run on specific node, which feature do you have to use?
 
-  Answer: Node Affinity
+  Answer: 
+  1. node selector: base on label
+    nodeSelector:
+    disktype: ssd
+  2. Node Affinity: custom rules that you define
+  requiredDuringSchedulingIgnoredDuringExecution, 
+  preferredDuringSchedulingIgnoredDuringExecution,  
+  requiredDuringSchedulingRequiredDuringExecution\
+  
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: disktype
+            operator: In
+            values:
+            - ssd
+            - fast
 
 ## .
 
@@ -1082,6 +1301,8 @@
 #### 98. If we already have a liveness probe, why do we need a readiness probe?
 
   Answer: There are times, when a container fails liveness probe and yet we do not want to container to be killed. For example, if a container takes time to ready (loads large data set). In this case, liveness probe would fail and (without a readiness probe), Kubernetes would kill the container. A readiness probe tell Kubernetes to wait for the container finish doing all its prep work.
+
+  While a liveness probe checks if the container is running, a readiness probe checks if the container is ready to serve traffic.
 
 ## .
 
@@ -1099,7 +1320,9 @@
 
 #### 100. What is "logging driver" ?
 
-  Answer: Docker has the ability to send logs to various places (e.g. awslogs or fluent and many more). Each one of these is a logging driver.
+  Answer: Configuration option for container runtimes that determines how container logs are handled and where they are sent.
+  Default: Kubernetes uses the JSON file logging driver
+  The logging driver allows Kubernetes administrators to control the output and destination of container logs, such as sending them to stdout/stderr, a file on the host system, a remote logging service, or a containerized logging agent.
 
 ## .
 
@@ -1139,7 +1362,20 @@
 #### 104. What is the idea behind "Security Context" ?
 
      Answer: Security Context is what level of permissions we give the container as it runs. BY default, it runs with UID 0, which is potentially bad. Be using runAsUser, runAsGroup and fsGroup, 
-       we can limit what can the container do on the host. This is "Security Context"
+     we can limit, what can the container do on the host. This is "Security Context"
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 2000
+  containers:
+  - name: my-container
+    image: nginx
+
 
 ## .
 
@@ -1169,7 +1405,10 @@
 
      Answer: If you have legacy application which cannot be modified, BUT you have a need to change to the port on which this app needs to listen on, the ambassador container can listen on the new port and pass on the traffic to the old port which did not get modified.
 
+     When you have a microservice architecture and you want to expose multiple services through a single endpoint, you can use an ambassador pattern. The ambassador acts as an API gateway that routes incoming requests to the appropriate service based on the request's destination URL or other criteria.
+
 ## .
+
 
 
 ## .......
@@ -1236,6 +1475,11 @@
 
      Answer: You will see the service and there will be no endpoint.
 
+     The service cannot discover or connect to the pods it is intended to target, resulting in errors or timeouts.
+     The service routes traffic to the wrong pods, leading to unexpected behavior or security issues.
+     The service cannot be accessed by clients, or clients cannot reach the expected endpoints, causing connectivity issues.
+     The service may not scale as expected, since incorrect labels or selectors can cause issues with the horizontal pod autoscaler or other scaling mechanisms.
+
 ## .
 
 
@@ -1266,7 +1510,7 @@
      Answer: Using a kubectl expose command
 
         Example: kubectl expose pod foopod --name=fooservice --port=80 --target-port=80 --type=ClusterIP
-                 :: service/ngnix-resolver-service exposed
+                 Output service/ngnix-resolver-service exposed
 
 ## .
 
@@ -1316,8 +1560,10 @@
 
 #### 122. What is a clusterrolebinding?
 
-     Answer: It is valid Kubernetes object that links a subject (e.g. an user) to a role.
-             This is how a user gets all the permissions that role has. (Much like AWS)
+     Answer: Used to grant the permissions defined in a ClusterRole to a particular group or user within a given namespace.
+     It binds a ClusterRole to a set of subjects (users, groups, or service accounts), thereby defining which permissions are granted to those subjects within the scope of the entire cluster.
+     It is valid Kubernetes object that links a subject (e.g. an user) to a role.
+     This is how a user gets all the permissions that role has. (Much like AWS)
 
 ## .
 
@@ -1573,7 +1819,7 @@
 
 #### 146. What are annotations use for in Kubernetes and how are they different from labels and selectors  
 
-     Answer:  Non-identifying metadata (e.g. contact info). Almost like comments
+     Answer:  Non-identifying metadata (e.g. contact info,  form of key-value pairs). Almost like comments
               You can't select based on annotations. You can select based on labels.
 
 ## .
@@ -3143,6 +3389,7 @@
 
 ## ......
 
+
 ### 296. Why do we need Labels?
 
     Answer: Labels are integral part of Kubernetes. Whenever there is need to select one or more out of many, a label is used. For example, you may have 1000 pods. Only 10 of them belong to a deployment or service. This one to many relationship can dynamicaly established by selecting pods based on their labels. 
@@ -3293,4 +3540,7 @@ You have 20 nodes. You want to use 10 of then ONLY for production pods. How? tai
 Pods in pending state. why? nodes tainted or not enough resources left or node affinity set wrong
 
 
+
+=======
+#### 285
 
