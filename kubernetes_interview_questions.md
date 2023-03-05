@@ -856,6 +856,13 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 65. What is the different between PV and PVC?
 
     Answer: PV is basically a disk volume of some sort.  PVC is a link between that volume and a pod.
+    PVs are the storage resources that are provisioned by administrators and PVCs are the requests made by pods to access the storage resources provided by PVs.
+
+    PV stands for Persistent Volume, which is a storage resource in Kubernetes that is provisioned by an administrator. It is a cluster-wide resource that can be accessed by multiple pods in the same or different namespaces.
+    PVs are statically provisioned, meaning they are created before they are bound to any pod, and are not tied to the lifecycle of any single pod.
+
+    PVC stands for Persistent Volume Claim, which is a request for storage made by a pod or a group of pods in a specific namespace. 
+    PVCs are used by pods to request specific storage resources without having to know the details of how the storage is provisioned or configured.
 
 ## .
 
@@ -888,6 +895,13 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
              On the master node, the file that has these configs is at : /etc/kubernetes/manifests/etcd.yaml
              That file in turn , points to the 2 cert files and 1 key file.
 
+             
+
+             the Master server communicates with the etcd cluster using the etcd API.
+             The Kubernetes API server, which is part of the Master server, communicates with etcd to read and write data about the state of the cluster.
+
+             When the Kubernetes master communicates with etcd, it uses client certificates for authentication and transport layer security (TLS) to encrypt the traffic.
+
 ## .
 
 
@@ -900,6 +914,9 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
        member list
        snapshot save /tmp/etcd-backup.db
        snapshot status /tmp/etcd-backup.db -w table
+
+       etcdctl --endpoints=<etcd-endpoints> --cert-file=<path-to-cert> --key-file=<path-to-key> set /registry/namespaces/<namespace-name> '{"apiVersion":"v1","kind":"Namespace","metadata":{"name":"<namespace-name>","creationTimestamp":null},"spec":{},"status":{}}'
+
 
 ## .
 
@@ -935,7 +952,9 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 72. Kubectl command to create deployment with busybox version 1.13  
      
-     Answer: kubectl run foo-deploy --image=busybox:1:13 --replica=1 --record  # create deployment w busybox 1.13
+     Answer: kubectl create deployment busybox --image=busybox:1:13 --replica=1
+
+     kubectl run foo-deploy --image=busybox:1:13 --replica=1 --record  # create deployment w busybox 1.13
 
 ## .
 
@@ -972,7 +991,12 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 76. Why do you need certificates in Kubernetes, anyway?
 
-     Answer: For one thing, the API server won't talk to you , if you don't have a signed client certificate. So, any client who wants to do ANYTHING with the API server (e.g. even kubectl) better have a signed certificate!
+     Answer:   certificates help to ensure the security and integrity of the Kubernetes cluster and the data it contains.
+     To provide secure communication between different components in the cluster.
+     They ensure that only authorized entities can access sensitive information or perform certain actions within the cluster.
+     Certificates are used for authentication and authorization of users and applications that interact with the Kubernetes API server.
+     
+     For one thing, the API server won't talk to you , if you don't have a signed client certificate. So, any client who wants to do ANYTHING with the API server (e.g. even kubectl) better have a signed certificate!
 
      Please read:  https://kubernetes.io/docs/reference/access-authn-authz/certificate-signing-requests/
 
@@ -984,6 +1008,12 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 77. Why are .csr files have CSR extension? What is CSR all about?
 
      Answer: CSR = Certificate Signing Request.  
+          When a user or an administrator needs a new certificate for a Kubernetes component or application, they generate a private key and a corresponding CSR file.
+          The CSR file contains information about the public key and other identifying information about the entity requesting the certificate.
+
+          The .csr file extension is used to indicate that the file contains a certificate signing request.
+
+
              For example A needs B to give A a signed certificate SO THAT A can later talk to B using that certificate. 
              A will send a CSR (Certificate Signing Request) to B. The file that A sends to be will be CSR and thus will have .csr extension.
 
@@ -1037,6 +1067,13 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
        f. Kubernetes Certificates
        g. RBAC entities
 
+       1.Network security
+       2.Cluster access control
+       3.Secure communication
+       4.Image security
+       5.Resource isolation
+       6.Audit logging
+
 ## .
 
 
@@ -1072,6 +1109,29 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
        c. create a yaml file (Kind: CertificateSigningRequest) using the encoded CSR
        d. kubectl apply -f CertificateSigningRequest.yaml
 
+       openssl genrsa -out <key-file-name>.key 2048
+       openssl req -new -key <key-file-name>.key -out <csr-file-name>.csr -subj "/CN=<common-name>"
+
+       '''
+apiVersion: certificates.k8s.io/v1
+kind: CertificateSigningRequest
+metadata:
+  name: <csr-name>
+spec:
+  request: <csr-in-base64>
+  signerName: <ca-name>
+  usages:
+  - digital signature
+  - key encipherment
+  - client auth
+  - server auth
+
+       '''
+
+       kubectl apply -f csr.yaml
+
+       kubectl certificate approve <csr-name>
+
 ## .
 
 
@@ -1101,8 +1161,8 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
      Answer:  kubetcl create role
 
-       A detailed example: kubectl create role foo --resource=pods --verb=create,list,get,update,delete --namespace=development
-                           role.rbac.authorization.k8s.io/foo created
+       example: kubectl create role foo --resource=pods --verb=create,list,get,update,delete --namespace=development
+                Output: role.rbac.authorization.k8s.io/foo created
 
 ## .
 
@@ -1191,6 +1251,12 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
   Answer: You have to give the pod the same toleration
 
+  tolerations:
+  - key: "app"
+    operator: "Equal"
+    value: "production"
+    effect: "NoSchedule"
+
 ## .
 
 
@@ -1198,7 +1264,25 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 97. If you want a pod to run on specific node, which feature do you have to use?
 
-  Answer: Node Affinity
+  Answer: 
+  1. node selector: base on label
+    nodeSelector:
+    disktype: ssd
+  2. Node Affinity: custom rules that you define
+  requiredDuringSchedulingIgnoredDuringExecution, 
+  preferredDuringSchedulingIgnoredDuringExecution,  
+  requiredDuringSchedulingRequiredDuringExecution\
+  
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+        - matchExpressions:
+          - key: disktype
+            operator: In
+            values:
+            - ssd
+            - fast
 
 ## .
 
@@ -1208,6 +1292,8 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 98. If we already have a liveness probe, why do we need a readiness probe?
 
   Answer: There are times, when a container fails liveness probe and yet we do not want to container to be killed. For example, if a container takes time to ready (loads large data set). In this case, liveness probe would fail and (without a readiness probe), Kubernetes would kill the container. A readiness probe tell Kubernetes to wait for the container finish doing all its prep work.
+
+  While a liveness probe checks if the container is running, a readiness probe checks if the container is ready to serve traffic.
 
 ## .
 
@@ -1225,7 +1311,9 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 100. What is "logging driver" ?
 
-  Answer: Docker has the ability to send logs to various places (e.g. awslogs or fluent and many more). Each one of these is a logging driver.
+  Answer: Configuration option for container runtimes that determines how container logs are handled and where they are sent.
+  Default: Kubernetes uses the JSON file logging driver
+  The logging driver allows Kubernetes administrators to control the output and destination of container logs, such as sending them to stdout/stderr, a file on the host system, a remote logging service, or a containerized logging agent.
 
 ## .
 
@@ -1265,7 +1353,20 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 104. What is the idea behind "Security Context" ?
 
      Answer: Security Context is what level of permissions we give the container as it runs. BY default, it runs with UID 0, which is potentially bad. Be using runAsUser, runAsGroup and fsGroup, 
-       we can limit what can the container do on the host. This is "Security Context"
+     we can limit, what can the container do on the host. This is "Security Context"
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: my-pod
+spec:
+  securityContext:
+    runAsUser: 1000
+    fsGroup: 2000
+  containers:
+  - name: my-container
+    image: nginx
+
 
 ## .
 
@@ -1295,7 +1396,10 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
      Answer: If you have legacy application which cannot be modified, BUT you have a need to change to the port on which this app needs to listen on, the ambassador container can listen on the new port and pass on the traffic to the old port which did not get modified.
 
+     When you have a microservice architecture and you want to expose multiple services through a single endpoint, you can use an ambassador pattern. The ambassador acts as an API gateway that routes incoming requests to the appropriate service based on the request's destination URL or other criteria.
+
 ## .
+
 
 
 ## .......
@@ -1362,6 +1466,11 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
      Answer: You will see the service and there will be no endpoint.
 
+     The service cannot discover or connect to the pods it is intended to target, resulting in errors or timeouts.
+     The service routes traffic to the wrong pods, leading to unexpected behavior or security issues.
+     The service cannot be accessed by clients, or clients cannot reach the expected endpoints, causing connectivity issues.
+     The service may not scale as expected, since incorrect labels or selectors can cause issues with the horizontal pod autoscaler or other scaling mechanisms.
+
 ## .
 
 
@@ -1392,7 +1501,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
      Answer: Using a kubectl expose command
 
         Example: kubectl expose pod foopod --name=fooservice --port=80 --target-port=80 --type=ClusterIP
-                 :: service/ngnix-resolver-service exposed
+                 Output service/ngnix-resolver-service exposed
 
 ## .
 
@@ -1442,8 +1551,10 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 122. What is a clusterrolebinding?
 
-     Answer: It is valid Kubernetes object that links a subject (e.g. an user) to a role.
-             This is how a user gets all the permissions that role has. (Much like AWS)
+     Answer: Used to grant the permissions defined in a ClusterRole to a particular group or user within a given namespace.
+     It binds a ClusterRole to a set of subjects (users, groups, or service accounts), thereby defining which permissions are granted to those subjects within the scope of the entire cluster.
+     It is valid Kubernetes object that links a subject (e.g. an user) to a role.
+     This is how a user gets all the permissions that role has. (Much like AWS)
 
 ## .
 
@@ -1699,7 +1810,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 146. What are annotations use for in Kubernetes and how are they different from labels and selectors  
 
-     Answer:  Non-identifying metadata (e.g. contact info). Almost like comments
+     Answer:  Non-identifying metadata (e.g. contact info,  form of key-value pairs). Almost like comments
               You can't select based on annotations. You can select based on labels.
 
 ## .
