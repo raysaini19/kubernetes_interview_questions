@@ -212,10 +212,16 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
       This artcile answers it very well:
       https://www.replex.io/blog/kubernetes-in-production-best-practices-for-cluster-autoscaler-hpa-and-vpa
 
-      a. hpa for pods (horizontal pod autoscaler)
-      b. vpa for pods (vertical pod autoscaler)
+      a. hpa for pods (horizontal pod autoscaler):
+           HPA automatically scales the number of replicas of a pod based on the CPU utilization or custom metrics
+      b. vpa for pods (vertical pod autoscaler):
+           scales the CPU and memory resources of a pod based on the usage patterns
       c. Cluster Autoscaler:
            The cluster autoscaler is a Kubernetes tool that increases or decreases the size of a Kubernetes cluster (by adding or removing nodes), based on the presence of pending pods and node utilization metrics
+      d. StatefulSet Autoscaler:
+           The StatefulSet Autoscaler automatically scales the number of replicas of a StatefulSet based on the demand. It can be used to ensure that the application has the required resources to handle the load and can scale up or down based on the demand.
+      e. Job Autoscaler:
+           The Job Autoscaler automatically scales the number of replicas of a Job based on the workload. It can be used to ensure that the application has the required resources to handle the workload and can scale up or down based on the demand.
 
 ## .
 
@@ -228,6 +234,15 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
     Answer: Answer will depend on your use case. One possible answer is to have Service accounts that do certain things within the cluster.
             By the way, RBAC in Kubernetes is just AWS IAM Policies and Bindings. In RBAC, you have subjects (who gets the permission), verbs (what can the subject actually do), and rolebinding (subject linking to roles) and roles.
 
+RBAC is a security mechanism in Kubernetes that controls access to Kubernetes resources based on roles and permissions. RBAC allows you to define roles and permissions for users, groups, and service accounts. Here's an example of how RBAC can be used with Kubernetes:
+
+Define roles and permissions: You can define roles and permissions for different types of users, groups, and service accounts. For example, you can define a "developer" role that has permissions to create and modify deployments, pods, and services.
+
+Create role bindings: Role bindings are used to associate roles with users, groups, and service accounts. For example, you can create a role binding that associates the "developer" role with a particular user or group.
+
+Verify access: Once the roles and role bindings are created, you can verify access to Kubernetes resources using kubectl. For example, you can use kubectl to verify that a user with the "developer" role can create and modify deployments, pods, and services.
+
+By using RBAC with Kubernetes, you can ensure that only authorized users have access to Kubernetes resources and that they have the appropriate level of access based on their role and permissions. This helps in improving the security of Kubernetes clusters and applications running on them.
 
 ## .
 
@@ -237,6 +252,22 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
 #### 14. If you have 200 micro-services in your clusters, how do you manage security of each one? How do you avoid toil?
 
     Answer: RBAC is the answer. You define roles. And you place subjects in those roles. Each role then will have access to X Y Z etc. This is really no different than AWS or AD.
+
+Managing the security of 200 microservices in a Kubernetes cluster can be a challenging task. Here are some best practices to manage the security of each microservice and avoid toil:
+
+Use RBAC: As mentioned in the previous answer, RBAC can be used to control access to Kubernetes resources. By defining roles and permissions for each microservice, you can ensure that only authorized users have access to the microservice and its resources.
+
+Use Kubernetes Network Policies: Network policies can be used to control the traffic flow between microservices. By defining network policies, you can ensure that only authorized microservices have access to each other.
+
+Use Kubernetes Secrets: Secrets can be used to store sensitive information such as passwords, API keys, and certificates. By using Kubernetes secrets, you can ensure that sensitive information is stored securely and only authorized microservices have access to it.
+
+Use Container Images from Trusted Sources: Ensure that container images used for microservices are obtained from trusted sources and are scanned for vulnerabilities before deploying them to the cluster.
+
+Use Automation: Use automation tools such as Kubernetes Operators and GitOps to manage the deployment and configuration of microservices. By automating the deployment and configuration process, you can avoid manual errors and ensure consistency across the cluster.
+
+Use Logging and Monitoring: Use logging and monitoring tools to track the activity of each microservice and identify any security issues or anomalies. This can help in detecting security threats early and taking appropriate action to mitigate them.
+
+By following these best practices, you can manage the security of each microservice in a Kubernetes cluster and avoid toil. Additionally, it's important to regularly review and update the security measures as the microservices and the cluster evolve over time.
 
 ## .
 
@@ -251,6 +282,32 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
 
       There are N micro-services. One of them gets a new version. But, the HPA for those pods are set wrong. Container keep crashing. This causes cascading failures for many other micro-services. 
       Solution: Fix the HPA settings and add circuit-breakers in the consuming micro-services.
+
+To solve this issue, you can take the following steps:
+
+Check the network configuration: Verify that the network configuration is correct and all the network components such as load balancers, routers, switches, and firewalls are properly configured.
+
+Check the Kubernetes components: Check the status of Kubernetes components such as kube-apiserver, kube-controller-manager, kube-scheduler, and kubelet. Verify that all components are running and healthy.
+
+Check the nodes: Check the status of nodes in the cluster. Verify that all nodes are running and healthy.
+
+Check the pods: Check the status of pods running on the nodes. Verify that all pods are running and healthy.
+
+Check the network policies: Verify that the network policies are properly configured to allow traffic flow between the components and services.
+
+Check the container logs: Check the container logs to identify any network-related issues or errors.
+
+Use troubleshooting tools: Use Kubernetes troubleshooting tools such as kubectl, kube-proxy, and kube-dns to diagnose and resolve the issue.
+
+Implement network redundancy: Implement network redundancy by using multiple load balancers, routers, switches, and firewalls to ensure high availability of the Kubernetes cluster.
+
+By taking these steps, you can solve a network outage or network partition issue in a production Kubernetes cluster. However, it's important to regularly review and update the network configuration and components to prevent such issues from occurring in the first place.
+
+
+
+
+
+
 
 ## .
 
@@ -272,6 +329,19 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
 #### 17. How can you have SSL certificates in Kubernetes?
 
     Answer: SSL cert can be a secret. Then that secret can be mounted on a pod and that pod can whatever it wants with it (e.g. host a SSL web site)
+
+
+To use SSL certificates in Kubernetes, you can follow these steps:
+
+Create a Kubernetes secret: First, you need to create a Kubernetes secret to store the SSL certificate and key. You can use the kubectl create secret tls command to create the secret.
+
+Mount the secret in the POD: Once you have created the secret, you can mount it in the POD by adding a volumeMounts section to the container's specification in the YAML file. This section should specify the name of the volume and the mountPath where the SSL certificate and key should be mounted.
+
+Specify the TLS configuration in the YAML file: Next, you need to specify the TLS configuration in the YAML file. This involves setting the tls section in the spec section of the YAML file, which should include the secretName of the Kubernetes secret and the hosts for which the SSL certificate should be used.
+
+Verify the SSL connection: Finally, you can verify that the SSL connection is working by testing the URL using the https protocol.
+
+By following these steps, you can use SSL certificates in Kubernetes to secure communication between the PODs and external clients. It's important to note that the SSL certificate must be issued by a trusted Certificate Authority (CA) and must be valid for the specific domain or subdomain that is being used.
 
 ## .
 
@@ -366,6 +436,7 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
        Put that image in a registry
        Create a deploymentment file with type: deployment and component: scheduler (in namespace kube-system)
        Deploy the the scheduler with apply -f scheduler.yaml command
+       location: /etc/kubernetes/config.yaml
 
 ## .
 
@@ -379,6 +450,11 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
        1. Pod that collects logs. Better to use daemonsets for this because you can logs to be fed from all pods (e.g. to kibana). Otherwise you have to make this part of EVERY deployment which would be annoying and repetitive.
        2. Pod that runs monitoring (e.g. dynatrace or datadog). Reason is the same as above.
 
+       Monitoring Agents: DaemonSets can be used to deploy monitoring agents on all nodes in a Kubernetes cluster. Since monitoring agents are typically required to be running on all nodes in a cluster to collect data on system performance, it makes sense to use a DaemonSet to ensure that the agent runs on every node. Deployments are more appropriate for stateless applications where the desired number of replicas can be specified, but it is difficult to ensure that the same number of replicas are running on every node in the cluster.
+
+
+       Log Collectors: DaemonSets can be used to collect logs from all containers running on a node in a Kubernetes cluster. Since logs need to be collected from all containers running on a node, it makes sense to use a DaemonSet to ensure that a logging agent runs on every node in the cluster. Deployments are more appropriate for stateless applications where the desired number of replicas can be specified, but it is difficult to ensure that the same number of replicas are running on every node in the cluster.
+
 ## .
 
 
@@ -388,7 +464,7 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
 #### 27. How to move workload to new nodepool? 
 
     Answer: cordon and drain
-        1. cordon means: dont add any more pods to this nodepool
+        1. cordon means: dont add any more pods to this nodepool : tainit
         2. drain means: move current pods out of it
 
 ## .  
