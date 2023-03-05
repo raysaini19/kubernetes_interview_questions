@@ -111,12 +111,13 @@
 
     Answer: AWS, GCE, and nginx ingress controllers.
             (This is straight from Kubernetes documentation)
+            
+            Nginx Ingress Controller - This controller uses the Nginx web server to route traffic to different services in the cluster.
+            
+            Traefik Ingress Controller - This controller is a modern HTTP reverse proxy and load balancer that can route traffic based on the requested host, path, or other rules.
+            
+            Istio Ingress Gateway - This controller is a part of the Istio service mesh and provides advanced traffic management features such as traffic routing, load balancing, TLS termination, and security.
 
-```
-Nginx Ingress Controller - This controller uses the Nginx web server to route traffic to different services in the cluster.
-Traefik Ingress Controller - This controller is a modern HTTP reverse proxy and load balancer that can route traffic based on the requested host, path, or other rules.
-Istio Ingress Gateway - This controller is a part of the Istio service mesh and provides advanced traffic management features such as traffic routing, load balancing, TLS termination, and security.
-```
 ## .
 
 
@@ -187,20 +188,20 @@ Istio Ingress Gateway - This controller is a part of the Istio service mesh and 
 
     Answer: if they use too much memory, they are evicted.
             if they use too much cpu, they are throttled.
+            
+            If containers use too much CPU or memory, it can cause performance issues or even lead to container failure. The following are the possible scenarios that can happen if containers use too much CPU or memory:
+            
+            
+            Performance degradation: If a container uses more CPU or memory than the resources allocated to it, it can cause performance degradation of the container itself and other containers running on the same node. This can lead to slower response times and reduced throughput of the application.
+            
+            Out of memory (OOM) errors: If a container uses more memory than the limit set for it, the Linux kernel can terminate the container with an OOM error. This happens because the kernel runs out of memory to allocate to the container, and it cannot free up memory from other processes.
+            
+            CPU throttling: If a container uses more CPU than the limit set for it, the Kubernetes control plane can throttle the CPU usage of the container. This can lead to slower response times and reduced throughput of the application.
+            
+            Container termination: If a container continues to use too much CPU or memory for an extended period, the Kubernetes control plane can terminate the container. This happens to ensure the stability and availability of the Kubernetes cluster.
+            
+            To avoid these scenarios, it is essential to monitor the resource utilization of containers and allocate sufficient resources based on the application requirements. You can also use tools like Kubernetes Horizontal Pod Autoscaler to automatically scale the resources of the containers based on the demand.
 
-```
-If containers use too much CPU or memory, it can cause performance issues or even lead to container failure. The following are the possible scenarios that can happen if containers use too much CPU or memory:
-
-Performance degradation: If a container uses more CPU or memory than the resources allocated to it, it can cause performance degradation of the container itself and other containers running on the same node. This can lead to slower response times and reduced throughput of the application.
-
-Out of memory (OOM) errors: If a container uses more memory than the limit set for it, the Linux kernel can terminate the container with an OOM error. This happens because the kernel runs out of memory to allocate to the container, and it cannot free up memory from other processes.
-
-CPU throttling: If a container uses more CPU than the limit set for it, the Kubernetes control plane can throttle the CPU usage of the container. This can lead to slower response times and reduced throughput of the application.
-
-Container termination: If a container continues to use too much CPU or memory for an extended period, the Kubernetes control plane can terminate the container. This happens to ensure the stability and availability of the Kubernetes cluster.
-
-To avoid these scenarios, it is essential to monitor the resource utilization of containers and allocate sufficient resources based on the application requirements. You can also use tools like Kubernetes Horizontal Pod Autoscaler to automatically scale the resources of the containers based on the demand.
-```
 ## .
 
 
@@ -233,16 +234,18 @@ To avoid these scenarios, it is essential to monitor the resource utilization of
 
     Answer: Answer will depend on your use case. One possible answer is to have Service accounts that do certain things within the cluster.
             By the way, RBAC in Kubernetes is just AWS IAM Policies and Bindings. In RBAC, you have subjects (who gets the permission), verbs (what can the subject actually do), and rolebinding (subject linking to roles) and roles.
-
-RBAC is a security mechanism in Kubernetes that controls access to Kubernetes resources based on roles and permissions. RBAC allows you to define roles and permissions for users, groups, and service accounts. Here's an example of how RBAC can be used with Kubernetes:
-
-Define roles and permissions: You can define roles and permissions for different types of users, groups, and service accounts. For example, you can define a "developer" role that has permissions to create and modify deployments, pods, and services.
-
-Create role bindings: Role bindings are used to associate roles with users, groups, and service accounts. For example, you can create a role binding that associates the "developer" role with a particular user or group.
-
-Verify access: Once the roles and role bindings are created, you can verify access to Kubernetes resources using kubectl. For example, you can use kubectl to verify that a user with the "developer" role can create and modify deployments, pods, and services.
-
-By using RBAC with Kubernetes, you can ensure that only authorized users have access to Kubernetes resources and that they have the appropriate level of access based on their role and permissions. This helps in improving the security of Kubernetes clusters and applications running on them.
+            
+            
+            RBAC is a security mechanism in Kubernetes that controls access to Kubernetes resources based on roles and permissions. RBAC allows you to define roles and permissions for users, groups, and service accounts. Here's an example of how RBAC can be used with Kubernetes:
+            
+            
+            Define roles and permissions: You can define roles and permissions for different types of users, groups, and service accounts. For example, you can define a "developer" role that has permissions to create and modify deployments, pods, and services.
+            
+            Create role bindings: Role bindings are used to associate roles with users, groups, and service accounts. For example, you can create a role binding that associates the "developer" role with a particular user or group.
+            
+            Verify access: Once the roles and role bindings are created, you can verify access to Kubernetes resources using kubectl. For example, you can use kubectl to verify that a user with the "developer" role can create and modify deployments, pods, and services.
+            
+            By using RBAC with Kubernetes, you can ensure that only authorized users have access to Kubernetes resources and that they have the appropriate level of access based on their role and permissions. This helps in improving the security of Kubernetes clusters and applications running on them.
 
 ## .
 
@@ -252,22 +255,22 @@ By using RBAC with Kubernetes, you can ensure that only authorized users have ac
 #### 14. If you have 200 micro-services in your clusters, how do you manage security of each one? How do you avoid toil?
 
     Answer: RBAC is the answer. You define roles. And you place subjects in those roles. Each role then will have access to X Y Z etc. This is really no different than AWS or AD.
-
-Managing the security of 200 microservices in a Kubernetes cluster can be a challenging task. Here are some best practices to manage the security of each microservice and avoid toil:
-
-Use RBAC: As mentioned in the previous answer, RBAC can be used to control access to Kubernetes resources. By defining roles and permissions for each microservice, you can ensure that only authorized users have access to the microservice and its resources.
-
-Use Kubernetes Network Policies: Network policies can be used to control the traffic flow between microservices. By defining network policies, you can ensure that only authorized microservices have access to each other.
-
-Use Kubernetes Secrets: Secrets can be used to store sensitive information such as passwords, API keys, and certificates. By using Kubernetes secrets, you can ensure that sensitive information is stored securely and only authorized microservices have access to it.
-
-Use Container Images from Trusted Sources: Ensure that container images used for microservices are obtained from trusted sources and are scanned for vulnerabilities before deploying them to the cluster.
-
-Use Automation: Use automation tools such as Kubernetes Operators and GitOps to manage the deployment and configuration of microservices. By automating the deployment and configuration process, you can avoid manual errors and ensure consistency across the cluster.
-
-Use Logging and Monitoring: Use logging and monitoring tools to track the activity of each microservice and identify any security issues or anomalies. This can help in detecting security threats early and taking appropriate action to mitigate them.
-
-By following these best practices, you can manage the security of each microservice in a Kubernetes cluster and avoid toil. Additionally, it's important to regularly review and update the security measures as the microservices and the cluster evolve over time.
+    
+    Managing the security of 200 microservices in a Kubernetes cluster can be a challenging task. Here are some best practices to manage the security of each microservice and avoid toil:
+    
+    Use RBAC: As mentioned in the previous answer, RBAC can be used to control access to Kubernetes resources. By defining roles and permissions for each microservice, you can ensure that only authorized users have access to the microservice and its resources.
+    
+    Use Kubernetes Network Policies: Network policies can be used to control the traffic flow between microservices. By defining network policies, you can ensure that only authorized microservices have access to each other.
+    
+    Use Kubernetes Secrets: Secrets can be used to store sensitive information such as passwords, API keys, and certificates. By using Kubernetes secrets, you can ensure that sensitive information is stored securely and only authorized microservices have access to it.
+    
+    Use Container Images from Trusted Sources: Ensure that container images used for microservices are obtained from trusted sources and are scanned for vulnerabilities before deploying them to the cluster.
+    
+    Use Automation: Use automation tools such as Kubernetes Operators and GitOps to manage the deployment and configuration of microservices. By automating the deployment and configuration process, you can avoid manual errors and ensure consistency across the cluster.
+    
+    Use Logging and Monitoring: Use logging and monitoring tools to track the activity of each microservice and identify any security issues or anomalies. This can help in detecting security threats early and taking appropriate action to mitigate them.
+    
+    By following these best practices, you can manage the security of each microservice in a Kubernetes cluster and avoid toil. Additionally, it's important to regularly review and update the security measures as the microservices and the cluster evolve over time.
 
 ## .
 
@@ -537,7 +540,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 35. One liner command to  run a pod with a label  
 
-    Answer: kubectl run foobar --image=redis:alpine -l label1:foo 
+    Answer: kubectl run nginx-pod --image=nginx --labels=app=web
 
 ## .
 
@@ -582,6 +585,8 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
     Answer:
        port : on the cluster
        targetport: on the container (just like ALB)
+       the 'port' is the external-facing port that clients will use to access the service, while the 'targetPort' is the internal port that the pods are listening on.
+       kubectl expose deployment my-app --port=80 --target-port=8080
 
 ## .
 
@@ -654,7 +659,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 47. Are environment variables encrypted in Kubernetes? 
 
-    Answer: No
+    Answer: No, They are stored in plain text format in Kubernetes resources such as ConfigMaps, Secrets, and Pod specification.
  
 ## .
 
@@ -665,7 +670,8 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 48. By default, can a pod in one namespace talk to another pod in another namespace? 
 
-    Answer: Yes.
+    Answer: No, a pod in one namespace cannot talk to another pod in another namespace, unless network policies or other network-level configurations are put in place to allow such communication.
+    This is because Kubernetes provides network isolation between namespaces by default
 
 ## .
 
@@ -697,6 +703,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 51. By default, where does yaml files for static POD files go:  
 
     Answer: /etc/kubernetes/manifests/  (on the node)
+    By default, the YAML files for static Pod files go to the directory specified in the kubelet's --pod-manifest-path flag, which is /etc/kubernetes/manifests on most Kubernetes installations.
 
 ## .
 
@@ -708,6 +715,10 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 #### 52. What is a static pod?
 
     Answer: This is from official documentation.  Static Pods are managed directly by the kubelet daemon on a specific node, without the API server observing them.
+    A static pod is a pod that is defined as a file on a node's filesystem, rather than in the Kubernetes API server
+    Static pods are managed directly by the kubelet on the node where they run, rather than by the Kubernetes API server
+    they cannot be updated or modified via the API server like regular pods
+    Static pods are typically used for system-level components that need to run on a specific node, such as network proxies or monitoring agents.
 
 ## .
 
@@ -804,7 +815,7 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 
 #### 61. jsonpath example of getting "everything"  (about nodes)  .  This is not really an interview question. But, its goog to know this in case JSON PATH topic comes up.
 
-    Answer: kubetcl get nodes -o jsonpath='{.items[*]}'   # everything, so tons of data
+    Answer: kubectl get nodes -o jsonpath='{.items[*]}'   # everything, so tons of data
             * Thing to remember is syntax starts out like awk (single quote and swiggly bracket and then follows dots for JSON levels and [] for lists.
 
 ## .
@@ -3131,20 +3142,3 @@ By following these steps, you can use SSL certificates in Kubernetes to secure c
 ## ......
 
 #### 285
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
